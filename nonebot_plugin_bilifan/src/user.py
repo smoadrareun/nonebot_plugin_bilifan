@@ -149,15 +149,15 @@ class BiliUser:
                 for index, medal in enumerate(failedMedals):
                     tasks = []
                     (
-                    tasks.append(
-                        self.api.likeInteract(medal["room_info"]["room_id"]),
+                        tasks.append(
+                            self.api.likeInteract(medal["room_info"]["room_id"]),
                         )
                         if self.config["LIKE_CD"]
                         else ...
                     )
                     (
-                    tasks.append(
-                        self.api.shareRoom(medal["room_info"]["room_id"]),
+                        tasks.append(
+                            self.api.shareRoom(medal["room_info"]["room_id"]),
                         )
                         if self.config["SHARE_CD"]
                         else ...
@@ -174,15 +174,15 @@ class BiliUser:
                 allTasks = []
                 for medal in failedMedals:
                     (
-                    allTasks.append(
-                        self.api.likeInteract(medal["room_info"]["room_id"]),
+                        allTasks.append(
+                            self.api.likeInteract(medal["room_info"]["room_id"]),
                         )
                         if self.config["LIKE_CD"]
                         else ...
                     )
                     (
-                    allTasks.append(
-                        self.api.shareRoom(medal["room_info"]["room_id"]),
+                        allTasks.append(
+                            self.api.shareRoom(medal["room_info"]["room_id"]),
                         )
                         if self.config["SHARE_CD"]
                         else ...
@@ -245,12 +245,12 @@ class BiliUser:
                 for index, medal in enumerate(failedMedals):
                     tasks = []
                     (
-                    tasks.append(
-                        self.api.likeInteractV3(
-                            medal["room_info"]["room_id"],
-                            medal["medal"]["target_id"],
-                            self.mid,
-                        ),
+                        tasks.append(
+                            self.api.likeInteractV3(
+                                medal["room_info"]["room_id"],
+                                medal["medal"]["target_id"],
+                                self.mid,
+                            ),
                         )
                         if self.config["LIKE_CD"]
                         else ...
@@ -265,12 +265,12 @@ class BiliUser:
                 allTasks = []
                 for medal in failedMedals:
                     (
-                    allTasks.append(
-                        self.api.likeInteractV3(
-                            medal["room_info"]["room_id"],
-                            medal["medal"]["target_id"],
-                            self.mid,
-                        ),
+                        allTasks.append(
+                            self.api.likeInteractV3(
+                                medal["room_info"]["room_id"],
+                                medal["medal"]["target_id"],
+                                self.mid,
+                            ),
                         )
                         if self.config["LIKE_CD"]
                         else ...

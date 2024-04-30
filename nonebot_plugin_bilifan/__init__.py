@@ -25,8 +25,8 @@ from nonebot_plugin_saa import Image, MessageFactory  # noqa: E402
 
 logger.opt(colors=True).info(
     (
-    "已检测到软依赖<y>nonebot_plugin_apscheduler</y>, <g>开启定时任务功能</g>"
-    if scheduler
+        "已检测到软依赖<y>nonebot_plugin_apscheduler</y>, <g>开启定时任务功能</g>"
+        if scheduler
         else "未检测到软依赖<y>nonebot_plugin_apscheduler</y>，<r>禁用定时任务功能</r>"
     ),
 )
