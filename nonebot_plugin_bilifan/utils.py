@@ -1,5 +1,6 @@
 import asyncio
 import shutil
+import random
 from pathlib import Path
 
 import yaml
@@ -41,13 +42,18 @@ def save_config(data):
 
 async def auto_cup():
     config = load_config()
-    count: dict = {}
+    count:dict = {}
     tasks = []
 
-    for user_id, group_id in config.items():  # noqa: B007
+    items = list(config.items())
+    # 使用shuffle函数随机排序
+    random.shuffle(items)
+    # 将列表转换回字典
+    new_config = dict(items)
+    for user_id, group_id in new_config.items():  # noqa: B007
         msg_path = Path(f"data/bilifan/{user_id}/login_info.txt")
         if msg_path.is_file():
-            task = asyncio.create_task(mains(msg_path.parent))
+            task = asyncio.create_task(mains(msg_path.parent, True))
             tasks.append((user_id, group_id, task))
         else:
             logger.warning(f"{user_id}尚未登录，已忽略")
@@ -71,6 +77,7 @@ async def auto_cup():
                 count[group_id] += 1
             else:
                 count[group_id] = 1
+        await asyncio.sleep(random.randint(1, 100))
         await get_bot().send_private_msg(user_id=user_id, message=messageStr)
 
     for group_num, num in count.items():
@@ -81,7 +88,7 @@ async def auto_cup():
         )
 
 
-def render_forward_msg(msg_list: list, uid=2711142767, name="宁宁"):
+def render_forward_msg(msg_list: list, uid=0, name=""):
     try:
         uid = get_bot().self_id
         name = next(iter(get_bot().config.nickname))

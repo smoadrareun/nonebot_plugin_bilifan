@@ -3,9 +3,11 @@ import itertools
 import json
 import os
 import warnings
+import random
 from pathlib import Path
 
 from nonebot.log import logger
+from nonebot.log import logger as log
 
 from .src import BiliUser
 
@@ -77,7 +79,7 @@ async def read_yaml(msg_path: Path):
 
 
 @logger.catch
-async def mains(msg_path):
+async def mains(msg_path, isAsync):
     await read_yaml(msg_path)
     init_tasks = []
     start_tasks = []
@@ -104,6 +106,8 @@ async def mains(msg_path):
             catch_msg.append(bili_user.sendmsg())
 
     try:
+        if isAsync:
+            await asyncio.sleep(random.randint(1, 3000))
         await asyncio.gather(*init_tasks)
         await asyncio.gather(*start_tasks)
     except Exception as e:

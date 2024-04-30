@@ -25,8 +25,8 @@ from nonebot_plugin_saa import Image, MessageFactory  # noqa: E402
 
 logger.opt(colors=True).info(
     (
-        "已检测到软依赖<y>nonebot_plugin_apscheduler</y>, <g>开启定时任务功能</g>"
-        if scheduler
+    "已检测到软依赖<y>nonebot_plugin_apscheduler</y>, <g>开启定时任务功能</g>"
+    if scheduler
         else "未检测到软依赖<y>nonebot_plugin_apscheduler</y>，<r>禁用定时任务功能</r>"
     ),
 )
@@ -127,12 +127,12 @@ async def _(matcher: Matcher, event: Event):
             await matcher.send(f"开始执行，预计将在{watchinglive}分钟后完成~")
         else:
             logger.info(msg_path)
-            await matcher.finish("你尚未登录，请输入【b站登录】")
-        messageList: List[str] = await mains(msg_path.parent)
+            await matcher.finish("你尚未登录，请输入【#b站登录】")
+        messageList:List[str] = await mains(msg_path.parent, False)
         message_str = "\n".join(messageList)
         await matcher.finish(message_str)
     except (FileNotFoundError, SystemExit):
-        await matcher.finish("你尚未登录，请输入【b站登录】")
+        await matcher.finish("你尚未登录，请输入【#b站登录】")
 
 
 @fan_auto.handle()
@@ -148,7 +148,7 @@ async def _(matcher: Matcher, event: Event):
             try:
                 fields = cron.split(" ")
                 await matcher.finish(
-                    f"{event.get_user_id()}的定时任务已存在，将在每天{fields[0]}时{fields[1]}分开始执行~",
+                    f"{event.get_user_id()}的定时任务已存在，将在每天{fields[1]}时{fields[0]}分后开始执行~",
                 )
             except AttributeError:
                 await matcher.finish("定时格式不正确，请删除定时任务后重新设置")
@@ -160,12 +160,12 @@ async def _(matcher: Matcher, event: Event):
             try:
                 fields = cron.split(" ")
                 await matcher.finish(
-                    f"已增加{event.get_user_id()}的定时任务，将在每天{fields[0]}时{fields[1]}分开始执行~",
+                    f"已增加{event.get_user_id()}的定时任务，将在每天{fields[1]}时{fields[0]}分后开始执行~",
                 )
             except AttributeError:
                 await matcher.finish("定时格式不正确，无法设置定时任务")
     else:
-        await matcher.finish("你尚未登录，请输入【b站登录】")
+        await matcher.finish("你尚未登录，请输入【#b站登录】")
 
 
 @del_only.handle()
@@ -201,12 +201,12 @@ async def _():
         logger.error("定时格式不正确，不启用定时功能")
         return
     try:
-        logger.info(f"定时任务已配置，将在每天{fields[0]}时{fields[1]}分后自动执行~")
+        logger.info(f"定时任务已配置，将在每天{fields[1]}时{fields[0]}分后自动执行~")
         scheduler.add_job(
             auto_cup,
             "cron",
-            hour=fields[0],
-            minute=fields[1],
+            hour=fields[1],
+            minute=fields[0],
             id="auto_cup",
         )
     except Exception:

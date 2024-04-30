@@ -34,7 +34,8 @@ async def get_tv_qrcode_url_and_auth_code():
         "ts": str(int(time.time())),
     }
     await signature(data)
-    async with aiohttp.ClientSession() as session:
+    logger.info(await map_to_string(data))
+    async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=False)) as session:
         async with session.post(
             api,
             data=await map_to_string(data),
@@ -51,7 +52,7 @@ async def get_tv_qrcode_url_and_auth_code():
             code = resp_data["code"]
             if code == 0:
                 login_url = resp_data["data"]["url"]
-                login_key = resp_data["data"]["qrcode_key"]
+                login_key = resp_data["data"]["auth_code"]
                 return login_url, login_key
             raise Exception("get_tv_qrcode_url_and_auth_code error")
 
@@ -64,8 +65,9 @@ async def verify_login(login_key: str, data_path: Path):
         "ts": str(int(time.time())),
     }
     await signature(data)
+    logger.info(await map_to_string(data))
     while True:
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=False)) as session:
             async with session.post(
                 api,
                 data=await map_to_string(data),
@@ -90,8 +92,12 @@ async def verify_login(login_key: str, data_path: Path):
                 logger.success("登录成功")
                 filename = "login_info.txt"
                 data_path.mkdir(parents=True, exist_ok=True)
-                with (data_path / filename).open(mode="w", encoding="utf-8") as f:
-                    f.write(access_key)
+                if not os.path.exists(data_path / filename):
+                    with (data_path / filename).open(mode="w", encoding="utf-8") as f:
+                        f.write(access_key)
+                else:
+                    with (data_path / filename).open(mode="a", encoding="utf-8") as f:
+                        f.write("\n" + access_key)
                 if not Path(data_path / "users.yaml").is_file():
                     logger.info("初始化配置文件")
                     shutil.copy2(
@@ -105,8 +111,14 @@ async def verify_login(login_key: str, data_path: Path):
                 #     "r", encoding="utf-8"
                 # ) as f:
                 #     config = yaml.safe_load(f)
-
-                config["USERS"][0]["access_key"] = access_key
+                if config["USERS"][0]["access_key"] and config["USERS"][1]["access_key"]:
+                    temp = config["USERS"][1]["access_key"]
+                    config["USERS"][1]["access_key"] = access_key
+                    config["USERS"][0]["access_key"] = temp
+                elif config["USERS"][0]["access_key"]:
+                    config["USERS"][1]["access_key"] = access_key
+                else:
+                    config["USERS"][0]["access_key"] = access_key
                 config = yaml.dump(
                     await anyio.Path(data_path / "users.yaml").write_text("u8"),
                     allow_unicode=True,

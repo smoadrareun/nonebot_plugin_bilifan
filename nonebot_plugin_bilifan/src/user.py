@@ -3,7 +3,7 @@ import uuid
 from datetime import datetime, timedelta
 from typing import Optional
 
-from aiohttp import ClientSession, ClientTimeout
+from aiohttp import ClientSession, ClientTimeout, TCPConnector
 from loguru import logger
 from nonebot.log import logger as log
 
@@ -46,7 +46,7 @@ class BiliUser:
         self.medals = []  # 用户所有勋章
         self.medalsNeedDo = []  # 用户所有勋章，等级小于20的 未满1500的
 
-        self.session = ClientSession(timeout=ClientTimeout(total=3))
+        self.session = ClientSession(timeout=ClientTimeout(total=3), connector=TCPConnector(ssl=False))
         self.api = BiliApi(self, self.session)
 
         self.retryTimes = 0  # 点赞任务重试次数
@@ -149,22 +149,22 @@ class BiliUser:
                 for index, medal in enumerate(failedMedals):
                     tasks = []
                     (
-                        tasks.append(
-                            self.api.likeInteract(medal["room_info"]["room_id"]),
+                    tasks.append(
+                        self.api.likeInteract(medal["room_info"]["room_id"]),
                         )
                         if self.config["LIKE_CD"]
                         else ...
                     )
                     (
-                        tasks.append(
-                            self.api.shareRoom(medal["room_info"]["room_id"]),
+                    tasks.append(
+                        self.api.shareRoom(medal["room_info"]["room_id"]),
                         )
                         if self.config["SHARE_CD"]
                         else ...
                     )
                     await asyncio.gather(*tasks)
                     log.success(
-                        f"{medal['anchor_info']['nick_name']} 点赞,分享成功 {index + 1}/{len(self.medalsNeedDo)}",
+                        f"{medal['anchor_info']['nick_name']} 点赞,分享成功 {index+1}/{len(self.medalsNeedDo)}",
                     )
                     await asyncio.sleep(
                         max(self.config["LIKE_CD"], self.config["SHARE_CD"]),
@@ -174,15 +174,15 @@ class BiliUser:
                 allTasks = []
                 for medal in failedMedals:
                     (
-                        allTasks.append(
-                            self.api.likeInteract(medal["room_info"]["room_id"]),
+                    allTasks.append(
+                        self.api.likeInteract(medal["room_info"]["room_id"]),
                         )
                         if self.config["LIKE_CD"]
                         else ...
                     )
                     (
-                        allTasks.append(
-                            self.api.shareRoom(medal["room_info"]["room_id"]),
+                    allTasks.append(
+                        self.api.shareRoom(medal["room_info"]["room_id"]),
                         )
                         if self.config["SHARE_CD"]
                         else ...
@@ -245,19 +245,19 @@ class BiliUser:
                 for index, medal in enumerate(failedMedals):
                     tasks = []
                     (
-                        tasks.append(
-                            self.api.likeInteractV3(
-                                medal["room_info"]["room_id"],
-                                medal["medal"]["target_id"],
-                                self.mid,
-                            ),
+                    tasks.append(
+                        self.api.likeInteractV3(
+                            medal["room_info"]["room_id"],
+                            medal["medal"]["target_id"],
+                            self.mid,
+                        ),
                         )
                         if self.config["LIKE_CD"]
                         else ...
                     )
                     await asyncio.gather(*tasks)
                     log.success(
-                        f"{medal['anchor_info']['nick_name']} 点赞成功 {index + 1}/{len(self.medalsNeedDo)}",
+                        f"{medal['anchor_info']['nick_name']} 点赞成功 {index+1}/{len(self.medalsNeedDo)}",
                     )
                     await asyncio.sleep(self.config["LIKE_CD"])
             else:
@@ -265,12 +265,12 @@ class BiliUser:
                 allTasks = []
                 for medal in failedMedals:
                     (
-                        allTasks.append(
-                            self.api.likeInteractV3(
-                                medal["room_info"]["room_id"],
-                                medal["medal"]["target_id"],
-                                self.mid,
-                            ),
+                    allTasks.append(
+                        self.api.likeInteractV3(
+                            medal["room_info"]["room_id"],
+                            medal["medal"]["target_id"],
+                            self.mid,
+                        ),
                         )
                         if self.config["LIKE_CD"]
                         else ...
@@ -353,7 +353,7 @@ class BiliUser:
     async def init(self):
         if not await self.loginVerify():
             log.error(f"登录失败 可能是 access_key：{self.access_key} 过期 , 请重新获取")
-            self.errmsg.append("登录失败 可能是登录已过期 , 请发送【b站登录】重新登录")
+            self.errmsg.append("登录失败 可能是登录已过期 , 请发送【#b站登录】重新登录")
             await self.session.close()
         else:
             await self.doSign()
